@@ -102,20 +102,3 @@ $(".pagination").on("click", "a", function () {
     //display a new round of students
     showSelectedStudents(currentPageIndex());
 });
-
-
-
-/*
-div.student-search
-    input type="text" placeholder="Search for Students"
-
-
-*/
-
-
-
-
-
-
-
-
