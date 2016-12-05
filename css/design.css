@@ -12,6 +12,10 @@ body{
   padding: 50px;
 }
 
+
+.no-results {
+  float: right;
+}
 .page-header{
   margin-bottom: 20px;
 }
