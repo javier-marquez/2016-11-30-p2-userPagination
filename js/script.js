@@ -110,6 +110,7 @@ var createSearchBar = function () {
     $studentSearchDiv.append($buttonStudentSearch);
 
     console.log("search bar created and appended");
+
     return $studentSearchDiv;
 
 }
@@ -129,7 +130,16 @@ $(".student-search").on("click", "button", function () {
 //global variable to store the string to search
 var sanitizedSearch;
 //array of results
-var resultStudents = [];
+var $resultsUl = $("<ul class='student-list results'></ul>");
+
+var appendResultsUl = function(parentElement){
+    $(parentElement).append($resultsUl);
+
+}
+
+appendResultsUl(container);
+
+var student;
 //var resultsIndex = [];
 //no results message
 var $noResultsMessage = $("<span class='no-results'></span>");
@@ -142,7 +152,7 @@ var searchStudents = function (inputElement) {
         $noResultsMessage.text("Enter a name to search");
         $(".page-header").append($noResultsMessage);
         $noResultsMessage.show().delay(4000).fadeOut();
-        resultStudents = [];
+        $("ul.student-list.results").hide();
         $("div.pagination").show();
         showSelectedStudents(currentPageIndex());
     } else {
@@ -157,8 +167,9 @@ var searchStudents = function (inputElement) {
             //if we got a match we put the correponding index to the global variable resultStudents
             if (name.includes(sanitizedSearch) || (email.includes(sanitizedSearch))) {      /*<----- change*/
                 
-                var student  = $(fullStudentsList).slice(indexInArray, indexInArray+1);
-                $(resultStudents).push(student);
+                student = $(fullStudentsList).slice(indexInArray, indexInArray+1);
+                $("ul.student-list.results").append(student);
+                
                
 
                 
@@ -174,16 +185,14 @@ var searchStudents = function (inputElement) {
 var displayStudentsSearch = function () {
 
     //if there are results
-    if (resultStudents.length > 0) {
+    if ($("ul.student-list.results").children().length > 0) {
         //hide pagination
         $("div.pagination").hide();             
         //hide all students
         $(fullStudentsList).hide();             
         //show the selected students
-        $.each(resultStudents, function (indexInArray, valueOfElement) {          
-            $(fullStudentsList[valueOfElement]).show();                         /*<----- change*/
-        });
-        resultStudents = [];
+        $("ul.student-list.results li").show();               /*<----- change*/
+               
     } else {
         $noResultsMessage.text("Sorry no results, try again!");
         $(".page-header").append($noResultsMessage);
