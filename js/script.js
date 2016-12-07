@@ -1,3 +1,7 @@
+// This is just so that we can treat HTMLCollections like really-real Arrays
+HTMLCollection.prototype.forEach = Array.prototype.forEach;
+
+
 //Select all the student ListItems to be able to operate on them individually
 var fullStudentsList = document.getElementsByClassName("student-item");
 //Select the first container to append the paginationDiv later on
@@ -37,7 +41,7 @@ var createAppendPagLi = function (i, parentElement) {
 
 }
 
-var appendCreatePagination = function (int, parentElement) {
+var appendCreatePagination = function (int, parentElement) {            /**<--------- new resultsPagination */
     var paginationDiv = document.createElement("div");
     paginationDiv.className = "pagination";
 
@@ -54,18 +58,18 @@ var appendCreatePagination = function (int, parentElement) {
 }
 
 //Create the pagination div with first page as active showing the 10 students by default
-appendCreatePagination(defineNumberOfPages(fullStudentsList), container);
+appendCreatePagination(defineNumberOfPages(fullStudentsList), container);               /**<--------- new initialisation */
 
 //gets the index of the active page listItem
-var currentPageIndex = function () {
+var currentPageIndex = function () {                                        
     //Getting the index of the "li" in relation with its siblings, any workaround to get the index of the "a"?
-    var index = $("a.active").parent().index();
+    var index = $("a.active").parent().index();                     /**<--------- do a find on the pagination add argument of the pagination target */
     return index + 1; //i.e. 1 means student 1 to 10.
 }
 
-var showSelectedStudents = function (intPageIndex) {
+var showSelectedStudents = function (intPageIndex) {                /**<--------- add argument arr */
     //select all students hide them
-    $(fullStudentsList).hide();
+    $(fullStudentsList).hide();                                     /**<--------- add argument arr */
     //range of students to show
     var maxInclusiveInt = intPageIndex * 10 - 1; //we substract one to be able to use the same index 
     var minInclusiveInt = maxInclusiveInt - 9;
@@ -78,9 +82,9 @@ var showSelectedStudents = function (intPageIndex) {
 }
 
 //display first round of students
-showSelectedStudents(currentPageIndex());
+showSelectedStudents(currentPageIndex());                       /**<--------- invoke this with arguments pagination/resultsPagination  fullStudentsList/studentsFound */
 
-//using jquery to manipulate the pagination classes
+//using jquery to manipulate the pagination classes                 /*Same function to be called everytime results are found*/
 $(".pagination").on("click", "a", function () {
     //remove "active" class from all the li
     $(this).parent().siblings().removeClass("active");
@@ -125,10 +129,11 @@ $(".student-search").on("click", "button", function () {
 //global variable to store the string to search
 var sanitizedSearch;
 //array of results
-var resultsIndex = [];
+var resultStudents = [];
+//var resultsIndex = [];
 //no results message
 var $noResultsMessage = $("<span class='no-results'></span>");
-
+/***<-------add global arr studentsFound ------> */
 
 //sanitizing the search value
 var searchStudents = function (inputElement) {
@@ -137,7 +142,7 @@ var searchStudents = function (inputElement) {
         $noResultsMessage.text("Enter a name to search");
         $(".page-header").append($noResultsMessage);
         $noResultsMessage.show().delay(4000).fadeOut();
-        resultsIndex = [];
+        resultStudents = [];
         $("div.pagination").show();
         showSelectedStudents(currentPageIndex());
     } else {
@@ -149,9 +154,14 @@ var searchStudents = function (inputElement) {
             var name = $(element).find("div.student-details h3").text();
             var email = $(element).find("div.student-details span.email").text();
             console.log("searching");
-            //if we got a match we put the correponding index to the global variable resultsIndex
-            if (name.includes(sanitizedSearch) || (email.includes(sanitizedSearch))) {
-                resultsIndex.push(indexInArray);
+            //if we got a match we put the correponding index to the global variable resultStudents
+            if (name.includes(sanitizedSearch) || (email.includes(sanitizedSearch))) {      /*<----- change*/
+                
+                var student  = $(fullStudentsList).slice(indexInArray, indexInArray+1);
+                $(resultStudents).push(student);
+               
+
+                
 
             }
         });
@@ -164,16 +174,16 @@ var searchStudents = function (inputElement) {
 var displayStudentsSearch = function () {
 
     //if there are results
-    if (resultsIndex.length > 0) {
+    if (resultStudents.length > 0) {
         //hide pagination
-        $("div.pagination").hide();
+        $("div.pagination").hide();             
         //hide all students
-        $(fullStudentsList).hide();
+        $(fullStudentsList).hide();             
         //show the selected students
-        $.each(resultsIndex, function (indexInArray, valueOfElement) {
-            $(fullStudentsList[valueOfElement]).show();
+        $.each(resultStudents, function (indexInArray, valueOfElement) {          
+            $(fullStudentsList[valueOfElement]).show();                         /*<----- change*/
         });
-        resultsIndex = [];
+        resultStudents = [];
     } else {
         $noResultsMessage.text("Sorry no results, try again!");
         $(".page-header").append($noResultsMessage);
@@ -181,3 +191,31 @@ var displayStudentsSearch = function () {
     }
 
 }
+
+/*
+
+Changes needed to use pagination on results
+    searchStudents()
+        When results are found
+            slice() the li instead of the indexes and push them in to a new global array i.e. var studentsFound
+        If there are no results 
+            hide/remove the resultsPagination
+            reinitialize the studentsFound
+            hide/remove the results
+
+
+
+    displayStudentsSearch()
+        Instead of showing the same array elements keep them hidden
+        Append all the results to show them
+        Create a resultsPagination based on the results
+        Append it as a sibling next to the pagination
+        Initialize the resultsPagination
+
+
+
+
+
+
+
+*/
